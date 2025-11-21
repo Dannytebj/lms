@@ -11,6 +11,7 @@ import db from "@/lib/prisma";
 import { createSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
+
 const AUTH_ERROR_MSG = "Bad request: check your details and try again.";
 
 export async function signUp(
@@ -30,9 +31,7 @@ export async function signUp(
       errors: validatedData.error.flatten().fieldErrors,
     };
   }
-  const { firstname, lastname, email, password } =
-    validatedData.data;
-
+  const { firstname, lastname, email, password } = validatedData.data;
 
   const userExists = await db.user.findUnique({
     where: { email },
@@ -40,7 +39,7 @@ export async function signUp(
 
   if (userExists) {
     return {
-       message: AUTH_ERROR_MSG
+      message: AUTH_ERROR_MSG,
     };
   }
 
@@ -56,7 +55,7 @@ export async function signUp(
       },
     });
 
-    await createSession(newUser.id);
+    await createSession({ id: newUser.id, role: newUser.role });
     redirect("/dashboard");
   } catch (error) {
     console.error("Error creating user:", error);
@@ -105,7 +104,7 @@ export async function signIn(
       };
     }
 
-    await createSession(user.id);
+    await createSession({ id: user.id, role: user.role });
     redirect("/dashboard");
   } catch (error) {
     console.error("Error signing in:", error);

@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { Role } from "@/generated/prisma/enums";
 
 export const SignupFormSchema = z.object({
   firstname: z
@@ -64,6 +65,7 @@ export type SignupFormState =
 export interface SessionPayload {
   userId: string;
   sessionId: string;
+  role: Role;
   expiresAt: Date;
 }
 
