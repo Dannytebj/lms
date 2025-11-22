@@ -24,7 +24,8 @@ const menuItems: MenuItem[] = [
   { title: "Profile", url: "/dashboard/profile", icon: User, roles: ["USER", "ADMIN", "SUPER_ADMIN"] },
   { title: "Settings", url: "/dashboard/settings", icon: Settings, roles: ["USER", "ADMIN", "SUPER_ADMIN"] },
   { title: "Users", url: "/dashboard/admin", icon: Users, roles: ["ADMIN", "SUPER_ADMIN"] },
-  { title: "Courses", url: "/dashboard/courses", icon: Book, roles: ["ADMIN", "SUPER_ADMIN"] },
+  { title: "Courses", url: "/dashboard/admin/courses", icon: Book, roles: ["ADMIN", "SUPER_ADMIN"] },
+  { title: "Course Details", url: "/dashboard/admin/courses/:id", icon: Book, roles: ["ADMIN", "SUPER_ADMIN"] },
 ];
 
 interface AppSidebarProps {

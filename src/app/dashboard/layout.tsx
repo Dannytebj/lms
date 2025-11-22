@@ -14,7 +14,7 @@ async function DashboardLayout({
   return (
     <SidebarProvider>
       <AppSidebar userRole={session.role as Role} />
-      <main>
+      <main className="w-full">
         <SidebarTrigger />
         {children}
       </main>
