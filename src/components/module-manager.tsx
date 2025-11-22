@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { createModule, updateModule, deleteModule } from "@/lib/actions/module.action";
+import AppEditor from "@/components/editor";
 import { Trash2, Edit2, Plus } from "lucide-react";
 
 interface Module {
@@ -115,7 +116,9 @@ export function ModuleManager({ courseId, modules, onModulesChange }: ModuleMana
 
       {modules.length === 0 ? (
         <Card className="p-8 text-center">
-          <p className="text-muted-foreground">No modules yet. Create one to get started.</p>
+          <p className="text-muted-foreground">
+            No modules yet. Create one to get started.
+          </p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -124,9 +127,11 @@ export function ModuleManager({ courseId, modules, onModulesChange }: ModuleMana
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-lg">{module.title}</h3>
-                  {module.content && (
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{module.content}</p>
-                  )}
+                  {/* {module.content && (
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                      {module.content}
+                    </p>
+                  )} */}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Button
@@ -156,39 +161,52 @@ export function ModuleManager({ courseId, modules, onModulesChange }: ModuleMana
       )}
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>{editingModule ? "Edit Module" : "Add New Module"}</DialogTitle>
+            <DialogTitle>
+              {editingModule ? "Edit Module" : "Add New Module"}
+            </DialogTitle>
             <DialogDescription>
-              {editingModule ? "Update the module details" : "Create a new module for this course"}
+              {editingModule
+                ? "Update the module details"
+                : "Create a new module for this course"}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 flex-1 overflow-y-auto"
+          >
             <div className="space-y-2">
               <Label htmlFor="title">Module Title *</Label>
               <Input
                 id="title"
                 placeholder="Enter module title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 required
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1 flex flex-col">
               <Label htmlFor="content">Content</Label>
-              <textarea
-                id="content"
-                placeholder="Enter module content (optional)"
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                className="flex min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              />
+              <div className="flex-1 border rounded-md overflow-hidden">
+                <AppEditor
+                  content={formData.content}
+                  onChange={(content) => setFormData({ ...formData, content })}
+                  placeholder="Add your module content here..."
+                />
+              </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleCloseDialog}>
+            <DialogFooter className="sticky bottom-0 bg-background pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCloseDialog}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>

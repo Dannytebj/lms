@@ -60,7 +60,17 @@ export async function createModule(
   courseId: string,
   title: string,
   content?: string
-): Promise<{ success: boolean; moduleData?: { id: string; title: string; content: string | null; courseId: string; createdAt: Date }; error?: string }> {
+): Promise<{
+  success: boolean;
+  moduleData?: {
+    id: string;
+    title: string;
+    content: string | null;
+    courseId: string;
+    createdAt: Date;
+  };
+  error?: string;
+}> {
   try {
     const session = await verifySession();
 
@@ -97,7 +107,17 @@ export async function updateModule(
   moduleId: string,
   title: string,
   content?: string
-): Promise<{ success: boolean; moduleData?: { id: string; title: string; content: string | null; courseId: string; createdAt: Date }; error?: string }> {
+): Promise<{
+  success: boolean;
+  moduleData?: {
+    id: string;
+    title: string;
+    content: string | null;
+    courseId: string;
+    createdAt: Date;
+  };
+  error?: string;
+}> {
   try {
     const session = await verifySession();
 
@@ -124,7 +144,9 @@ export async function updateModule(
   }
 }
 
-export async function deleteModule(moduleId: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteModule(
+  moduleId: string
+): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await verifySession();
 
