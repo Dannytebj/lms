@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { createModule, updateModule, deleteModule } from "@/lib/actions/module.action";
 import AppEditor from "@/components/editor";
-import { Trash2, Edit2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { DropdownMenuDialog } from "./dropdown-menu";
+import { AssessmentModal } from "./assessment-modal";
 
 interface Module {
   id: string;
@@ -24,11 +26,18 @@ interface ModuleManagerProps {
   onModulesChange: () => void;
 }
 
-export function ModuleManager({ courseId, modules, onModulesChange }: ModuleManagerProps) {
+export function ModuleManager({
+  courseId,
+  modules,
+  onModulesChange,
+}: ModuleManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [editingModule, setEditingModule] = useState<Module | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [assessmentModalOpen, setAssessmentModalOpen] = useState(false);
+  const [selectedModuleForAssessment, setSelectedModuleForAssessment] =
+    useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -65,9 +74,17 @@ export function ModuleManager({ courseId, modules, onModulesChange }: ModuleMana
       let result;
 
       if (editingModule) {
-        result = await updateModule(editingModule.id, formData.title, formData.content || undefined);
+        result = await updateModule(
+          editingModule.id,
+          formData.title,
+          formData.content || undefined
+        );
       } else {
-        result = await createModule(courseId, formData.title, formData.content || undefined);
+        result = await createModule(
+          courseId,
+          formData.title,
+          formData.content || undefined
+        );
       }
 
       if (result.success) {
@@ -104,6 +121,30 @@ export function ModuleManager({ courseId, modules, onModulesChange }: ModuleMana
     }
   };
 
+  const getDropdownOptions = (module: Module, isDeleting: string | null) => [
+    {
+      label: "Edit",
+      onSelect: () => {
+        handleOpenDialog(module);
+      },
+    },
+    {
+      label: "Delete",
+      onSelect: () => {
+        handleDelete(module.id);
+      },
+      disabled: isDeleting === module?.id,
+    },
+    {
+      label: "Add Assesment",
+      onSelect: () => {
+        setSelectedModuleForAssessment(module.id);
+        setAssessmentModalOpen(true);
+      },
+      disabled: false,
+    },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -122,41 +163,26 @@ export function ModuleManager({ courseId, modules, onModulesChange }: ModuleMana
         </Card>
       ) : (
         <div className="space-y-3">
-          {modules.map((module) => (
-            <Card key={module.id} className="p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg">{module.title}</h3>
-                  {/* {module.content && (
+          {modules.map((module) => {
+            const options = getDropdownOptions(module, isDeleting);
+            return (
+              <Card key={module.id} className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg">{module.title}</h3>
+                    {/* {module.content && (
                     <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                       {module.content}
                     </p>
                   )} */}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <DropdownMenuDialog options={options} />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleOpenDialog(module)}
-                    className="gap-2"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(module.id)}
-                    disabled={isDeleting === module.id}
-                    className="text-destructive hover:text-destructive gap-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    {isDeleting === module.id ? "Deleting..." : "Delete"}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       )}
 
@@ -216,6 +242,18 @@ export function ModuleManager({ courseId, modules, onModulesChange }: ModuleMana
           </form>
         </DialogContent>
       </Dialog>
+
+      {selectedModuleForAssessment && (
+        <AssessmentModal
+          isOpen={assessmentModalOpen}
+          onClose={() => {
+            setAssessmentModalOpen(false);
+            setSelectedModuleForAssessment(null);
+          }}
+          moduleId={selectedModuleForAssessment}
+          onAssessmentCreated={onModulesChange}
+        />
+      )}
     </div>
   );
 }

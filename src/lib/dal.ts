@@ -12,11 +12,6 @@ export const verifySession = cache(async () => {
   if (!session?.userId) {
     redirect('/auth')
   }
-  console.log('Verified session for userId:', session);
-  console.log('Verified session for userId:', session.userId);
-//   const user = await db.user.findUnique({
-//     where: { id: session.userId },
-//   });
  
   return session;
 })

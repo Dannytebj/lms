@@ -164,3 +164,94 @@ export async function deleteModule(
     return { success: false, error: "Failed to delete module" };
   }
 }
+
+interface QuestionData {
+  content: string;
+  correctAnswerContent: string;
+  answers: string[];
+}
+
+export async function createAssessment(
+  moduleId: string,
+  title: string,
+  questions: QuestionData[]
+): Promise<{ success: boolean; assessmentId?: string; error?: string }> {
+  try {
+    const session = await verifySession();
+
+    if (!session?.userId) {
+      redirect("/auth");
+    }
+
+    if (!title.trim()) {
+      return { success: false, error: "Assessment title is required" };
+    }
+
+    if (!questions || questions.length === 0) {
+      return { success: false, error: "At least one question is required" };
+    }
+
+    // Verify module exists
+    const moduleData = await db.module.findUnique({ where: { id: moduleId } });
+    if (!moduleData) {
+      return { success: false, error: "Module not found" };
+    }
+
+    // Create assessment with questions and answers
+    const assessment = await db.assesment.create({
+      data: {
+        title: title.trim(),
+        moduleId,
+        questions: {
+          create: await Promise.all(
+            questions.map(async (q) => {
+              return {
+                content: q.content.trim(),
+                correctAnswer: q.correctAnswerContent.trim(),
+                answers: {
+                  create: q.answers.map((answer) => ({
+                    content: answer.trim(),
+                  })),
+                },
+              };
+            })
+          ),
+        },
+      },
+    });
+
+    return { success: true, assessmentId: assessment.id };
+  } catch (error) {
+    console.error("Error creating assessment:", error);
+    return { success: false, error: "Failed to create assessment" };
+  }
+}
+
+export async function getAssessmentsByModule(moduleId: string) {
+  try {
+    const session = await verifySession();
+
+    if (!session?.userId) {
+      redirect("/auth");
+    }
+
+    const assessments = await db.assesment.findMany({
+      where: { moduleId },
+      include: {
+        questions: {
+          include: {
+            answers: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    return { success: true, assessments };
+  } catch (error) {
+    console.error("Error fetching assessments:", error);
+    return { success: false, error: "Failed to fetch assessments" };
+  }
+}

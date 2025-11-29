@@ -35,6 +35,7 @@ model Module {
   content   String?
   courseId  String
   course    Course   @relation(fields: [courseId], references: [id])
+  assesments Assesment[]
   createdAt DateTime @default(now())
 }
 
@@ -53,6 +54,34 @@ model Session {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   expiresAt DateTime
+}
+
+model Assesment {
+  id        String   @id @default(cuid())
+  title     String
+  moduleId  String
+  module    Module   @relation(fields: [moduleId], references: [id])
+  questions Question[]
+  createdAt DateTime @default(now())
+  
+}
+
+model Question {
+  id          String     @id @default(cuid())
+  content     String
+  assesmentId String
+  assesment   Assesment  @relation(fields: [assesmentId], references: [id])
+  answers     Answer[]
+  correctAnswer String
+  createdAt   DateTime   @default(now())
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  content    String
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  createdAt  DateTime @default(now())
 }
 
 enum Role {
