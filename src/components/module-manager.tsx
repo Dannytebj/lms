@@ -11,6 +11,7 @@ import AppEditor from "@/components/editor";
 import { Plus } from "lucide-react";
 import { DropdownMenuDialog } from "./dropdown-menu";
 import { AssessmentModal } from "./assessment-modal";
+import { ViewModuleModal } from "./view-module-modal";
 
 interface Module {
   id: string;
@@ -31,13 +32,15 @@ export function ModuleManager({
   modules,
   onModulesChange,
 }: ModuleManagerProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [editingModule, setEditingModule] = useState<Module | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [assessmentModalOpen, setAssessmentModalOpen] = useState(false);
   const [selectedModuleForAssessment, setSelectedModuleForAssessment] =
     useState<string | null>(null);
+  const [viewingModule, setViewingModule] = useState<Module | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -48,7 +51,7 @@ export function ModuleManager({
     setEditingModule(null);
   };
 
-  const handleOpenDialog = (module?: Module) => {
+  const handleOpenCreateDialog = (module?: Module) => {
     if (module) {
       setEditingModule(module);
       setFormData({
@@ -58,12 +61,17 @@ export function ModuleManager({
     } else {
       resetForm();
     }
-    setIsOpen(true);
+    setIsCreateOpen(true);
   };
 
-  const handleCloseDialog = () => {
-    setIsOpen(false);
+  const handleCloseCreateDialog = () => {
+    setIsCreateOpen(false);
     resetForm();
+  };
+
+  const handleOpenViewModal = (module: Module) => {
+    setViewingModule(module);
+    setIsViewModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,7 +96,7 @@ export function ModuleManager({
       }
 
       if (result.success) {
-        handleCloseDialog();
+        handleCloseCreateDialog();
         onModulesChange();
       } else {
         alert(result.error || "Something went wrong");
@@ -123,9 +131,9 @@ export function ModuleManager({
 
   const getDropdownOptions = (module: Module, isDeleting: string | null) => [
     {
-      label: "Edit",
+      label: "View",
       onSelect: () => {
-        handleOpenDialog(module);
+        handleOpenViewModal(module);
       },
     },
     {
@@ -149,7 +157,7 @@ export function ModuleManager({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Course Modules</h2>
-        <Button onClick={() => handleOpenDialog()} className="gap-2">
+        <Button onClick={() => handleOpenCreateDialog()} className="gap-2">
           <Plus className="w-4 h-4" />
           Add Module
         </Button>
@@ -186,7 +194,7 @@ export function ModuleManager({
         </div>
       )}
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
@@ -231,7 +239,7 @@ export function ModuleManager({
               <Button
                 type="button"
                 variant="outline"
-                onClick={handleCloseDialog}
+                onClick={handleCloseCreateDialog}
               >
                 Cancel
               </Button>
@@ -242,6 +250,13 @@ export function ModuleManager({
           </form>
         </DialogContent>
       </Dialog>
+
+      <ViewModuleModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        module={viewingModule}
+        onModuleUpdated={onModulesChange}
+      />
 
       {selectedModuleForAssessment && (
         <AssessmentModal
