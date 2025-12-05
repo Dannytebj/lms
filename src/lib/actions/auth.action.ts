@@ -8,9 +8,8 @@ import {
   SignupFormState,
 } from "@/lib/definitions";
 import db from "@/lib/prisma";
-import { createSession } from "@/lib/session";
+import { createSession, deleteSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-
 
 const AUTH_ERROR_MSG = "Bad request: check your details and try again.";
 
@@ -93,14 +92,14 @@ export async function signIn(
 
     if (!user) {
       return {
-         message: AUTH_ERROR_MSG,
+        message: AUTH_ERROR_MSG,
       };
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return {
-        message: AUTH_ERROR_MSG
+        message: AUTH_ERROR_MSG,
       };
     }
 
@@ -116,4 +115,9 @@ export async function signIn(
       message: "Failed to sign in",
     };
   }
+}
+
+export async function logout() {
+  await deleteSession();
+  redirect("/auth");
 }

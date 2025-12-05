@@ -204,7 +204,7 @@ export function ViewModuleModal({
                     <Label className="text-sm text-muted-foreground">
                       Content
                     </Label>
-                    <Card className="p-4 mt-2 bg-muted">
+                    <Card className="p-4 mt-2 bg-muted max-h-80 overflow-y-auto">
                       <div
                         className="prose prose-sm max-w-none dark:prose-invert"
                         dangerouslySetInnerHTML={{ __html: formData.content }}
