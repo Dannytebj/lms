@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { ModuleManager } from "@/components/module-manager";
 import { getCourseDetails } from "@/lib/actions/module.action";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { DropdownMenuDialog } from "@/components/dropdown-menu";
 
 interface Course {
   id: string;
@@ -75,6 +76,14 @@ export default function CourseDetailsPage() {
     );
   }
 
+  const courseDropdownOptions = [
+    {
+      label: "Assign Course",
+      onSelect: () =>
+        router.push(`/dashboard/admin/courses/${courseId}/assign`),
+    },
+  ];
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -93,9 +102,18 @@ export default function CourseDetailsPage() {
       {/* Course Info */}
       <Card className="p-6">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold">{course.title}</h1>
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="text-3xl font-bold flex-1 min-w-0">
+              {course.title}
+            </h1>
+            <div className="flex items-center gap-2 shrink-0">
+              <DropdownMenuDialog options={courseDropdownOptions} />
+            </div>
+          </div>
           {course.description && (
-            <p className="text-muted-foreground text-lg">{course.description}</p>
+            <p className="text-muted-foreground text-lg">
+              {course.description}
+            </p>
           )}
           <p className="text-sm text-muted-foreground">
             Created on {new Date(course.createdAt).toLocaleDateString()}
